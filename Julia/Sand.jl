@@ -3,7 +3,7 @@ module Sand
 output = include("Output.jl") # supports output functionality (e.g. array to csv)
 
 
-const N_size = 700;    # the size of Z^2 will (2*N+1)x(2*N+1)
+const N_size = 700;    # the radius of the lattice Z^2, the actual size becomes (2*N+1)x(2*N+1)
 const dx = [1,0,-1,0]; # for a given (x,y) in Z^2, (x + dx, y + dy) for all (dx,dy) covers the neighborhood of (x,y)
 const dy = [0,1,0,-1];
 
@@ -85,203 +85,194 @@ function moveSand(T_mass)
 
     iter_ = 0;   # number of total iterations
 
-while 0 == 0
-    # we iterate until the process becomes stable
-    # it is proved in our paper https://arxiv.org/abs/1607.01525 that the process stabilises after finitely many moves
-    top_ = length(w_Bound);
+    while 0 == 0
+        # we iterate until the process becomes stable
+        # it is proved in our paper https://arxiv.org/abs/1607.01525
+        # that the process stabilises after finitely many moves
+        top_ = length(w_Bound);
 
-    iter_=iter_+1;
-    println("\nIteration N:: ", iter_);
-    println("The boundaries are:: ", (i2-i1+1),"x",(j2-j1+1), "\n");
+        iter_ = iter_+1;
+        println("\nIteration N:: ", iter_);
+        println("The boundaries are:: ", (i2-i1+1),"x",(j2-j1+1), "\n");
+        println("Moving the boundary...");
 
-    println("Moving the boundary...");
+        t1 = time_ns();
 
-    t1 = time_ns();
+        while (top_>0)
+            x=w_Bound[top_].x;
+            y=w_Bound[top_].y;
 
-    while (top_>0)
-        x=w_Bound[top_].x;
-        y=w_Bound[top_].y;
+            # any mass at the (x,y) needs to be moved out
+            dist_mass = Z_lat[x,y]/4;    # the mass is split evenly among lattice neighbors
 
-        # any mass at the (x,y) needs to be moved out
-        dist_mass = Z_lat[x,y]/4;             # the mass is split evenly among lattice neighbors
+            Z_lat[x,y + 1] = Z_lat[x,y + 1] + dist_mass; V_sites[x,y + 1] = true;
+            Z_lat[x,y - 1] = Z_lat[x,y - 1] + dist_mass; V_sites[x,y - 1] = true;
+            Z_lat[x - 1,y] = Z_lat[x - 1,y] + dist_mass; V_sites[x - 1,y] = true;
+            Z_lat[x + 1,y] = Z_lat[x + 1,y] + dist_mass; V_sites[x + 1,y] = true;
 
-        Z_lat[x,y + 1] = Z_lat[x,y + 1] + dist_mass ; V_sites[x,y + 1] = true;
-        Z_lat[x,y - 1] = Z_lat[x,y - 1] + dist_mass; V_sites[x,y - 1] = true;
-        Z_lat[x - 1,y] = Z_lat[x - 1,y] + dist_mass; V_sites[x - 1,y] = true;
-        Z_lat[x + 1,y] = Z_lat[x + 1,y] + dist_mass; V_sites[x + 1,y] = true;
+            Odometer[x,y] = Odometer[x,y] + Z_lat[x,y];
+            Z_lat[x,y] = 0;
 
-        Odometer[x,y] = Odometer[x,y] + Z_lat[x,y] ;
-        Z_lat[x,y] = 0;
+            pop!(w_Bound);
 
-        pop!(w_Bound);
+            i1 = min(i1,x-1);
+            i2 = max(i2,x+1);
+            j1 = min(j1,y-1);
+            j2 = max(j2,y+1);
 
-        i1 = min(i1,x-1);
-        i2 = max(i2,x+1);
-        j1 = min(j1,y-1);
-        j2 = max(j2,y+1);
+            for i=1:size(v_check,1)
+                a = x+v_check[i,1];
+                b = y+v_check[i,2];
 
-        for i=1:size(v_check,1)
-            a = x+v_check[i,1];
-            b = y+v_check[i,2];
+                if Z_lat[a,b]!=0
+                    is_Interior = ((V_sites[a,b + 1]==true)&&(V_sites[a,b - 1]==true)&&(V_sites[a - 1,b]==true)&&(V_sites[a + 1,b]==true));
 
-            if Z_lat[a,b]!=0
-                is_Interior = ((V_sites[a,b + 1]==true)&&(V_sites[a,b - 1]==true)&&(V_sites[a - 1,b]==true)&&(V_sites[a + 1,b]==true));
+                    if (is_Interior==false) && (Z_lat[a,b]<=Norm_mass)
+                        continue
+                    end
 
-                if (is_Interior==false) && (Z_lat[a,b]<=Norm_mass)
-                    continue
+                   if is_Interior == true
+                       j = FindCoordinate(w_Bound,a,b);
+
+                       if j > 0
+                          splice!(w_Bound,j); #removes the element with index j
+                      end
+                  end
+
+                 # case 2. if (a,b) needs to be walked out,
+                 # but it's not in the boundary stack. we check, to see if it needs to be added
+                 if is_Interior==false
+                    j = FindCoordinate(w_Bound,a,b);
+                    if j == -1
+                       push!(w_Bound,L_coord(a,b));
+                    end
+                 end
+
+               end # Z_lat is non zero
+             end # end of going over v_check
+
+             top_ = length(w_Bound);
+
+        end # end of while
+
+        t2 = time_ns();
+        print( "time elapsed: " , (t2 - t1)/1.0e9, "\n" );
+
+        # =  = = we now move the interior
+
+        println("Moving interiors.....");
+        println("..... Step1. Populating the interior....");
+        t1 = time_ns();
+
+        # we first populate the interior
+        w_Int=L_coord[];
+
+        for i=i1:i2
+            for j=j1:j2
+                is_Interior = ((V_sites[i,j + 1]==true)&&(V_sites[i,j - 1]==true)&&(V_sites[i - 1,j]==true)&&(V_sites[i + 1,j]==true));
+                if is_Interior == true
+                   k = FindCoordinate(w_Int,i,j);
+                      if k==-1
+                          push!(w_Int,L_coord(i,j));
+                      end
                 end
+            end
+        end
 
-               if is_Interior == true
-                   j = FindCoordinate(w_Bound,a,b);
+        t2 = time_ns();
+        print( "time elapsed: " , (t2 - t1)/1.0e9, "\n" );
+        println("..... Step2. Creating transformations....");
 
-                   if j > 0
-                      splice!(w_Bound,j); #removes the element with index j
-                   end
+        t1 = time_ns();
+
+        Transforms_ = createTransforms(w_Int); #Transforms_ is a pair of 2 matrices [T_matrix, Delta_matrix] in this order
+        # T_matrix is the coeff  matrix of the mass transform for the interior walk
+        # Delta_matrix is the coeff matrix of the mass distribution to boundary for the interior walk
+
+        weights_ = zeros(Float64, length(w_Int),1 );
+        for i = 1:length(w_Int)
+          weights_[i]=Z_lat[w_Int[i].x, w_Int[i].y];
+        end
+
+        t2 = time_ns();
+        print( "time elapsed: " , (t2 - t1)/1.0e9, "\n" );
+
+        println("..... Step3. Computing distributed weigths with inversion operator....");
+        t1 = time_ns();
+        id_M = zeros(Float64, length(w_Int), length(w_Int) );
+        for ii = 1:length(w_Int)
+           id_M[ii,ii] = 1;
+        end
+
+        weights_=(Transforms_[2]*(inv( id_M  - Transforms_[1]   )) )*weights_;
+
+        t2 = time_ns();
+        print( "time elapsed: " , (t2 - t1)/1.0e9, "\n" );
+
+        println("..... Step4. Distributing the weigths....");
+
+        t1 = time_ns();
+
+        for i = 1:length(w_Int)
+            a = w_Int[i].x;
+            b = w_Int[i].y;
+
+            Z_lat[a+1,b] = Z_lat[a+1,b] + weights_[i];
+            Z_lat[a-1,b] = Z_lat[a-1,b] + weights_[i];
+            Z_lat[a,b+1] = Z_lat[a,b+1] + weights_[i];
+            Z_lat[a,b-1] = Z_lat[a,b-1] + weights_[i];
+
+            Odometer[a,b] = Odometer[a,b]+4*weights_[i];
+         end
+
+         for i=1:length(w_Int)
+             a = w_Int[i].x;
+             b = w_Int[i].y;
+             Z_lat[a,b]=0;
+         end
+
+        t2 = time_ns();
+        print( "time elapsed: " , (t2 - t1)/1.0e9,"\n" );
+
+        # it is left to re-populate the boundary
+
+        println("..... Step5. Populating the new boundary....");
+
+        t1 = time_ns();
+
+        for i=1:length(w_Int)
+           #checking neighbors of interior points
+            for k = 1:4
+               a = w_Int[i].x + dx[k];
+               b = w_Int[i].y + dy[k];
+
+              is_Interior = ((V_sites[a,b + 1]==true)&&(V_sites[a,b - 1]==true)&&(V_sites[a - 1,b] == true)&&(V_sites[a + 1,b]==true));
+
+              if (is_Interior == false)&&(Z_lat[a,b] > Norm_mass)
+                  j=FindCoordinate(w_Bound,a,b);
+                  if j == -1
+                      push!(w_Bound,L_coord(a,b));
+                  end
               end
+            end
+        end # for loop over interior
 
-             # case 2. if (a,b) needs to be walked out,
-             # but it's not in the boundary stack. we check, to see if it needs to be added
-             if is_Interior==false
-                j = FindCoordinate(w_Bound,a,b);
-                if j == -1
-                   push!(w_Bound,L_coord(a,b));
-                end
-             end
+        t2 = time_ns();
+        print( "time elapsed: " , (t2 - t1)/1.0e9, "\n" );
 
-           end # Z_lat is non zero
-         end # end of going over v_check
+        w_Int = L_coord[];
 
-         top_ = length(w_Bound);
-
-    end # end of while
-
-    t2 = time_ns();
-    print( "time elapsed: " , (t2 - t1)/1.0e9, "\n" );
-
-    # =  = = we now move the interior
-
-    println("Moving interiors.....");
-    println("..... Step1. Populating the interior....");
-    t1 = time_ns();
-
-    # we first populate the interior
-    w_Int=L_coord[];
-
-    for i=i1:i2
-      for j=j1:j2
-        is_Interior = ((V_sites[i,j + 1]==true)&&(V_sites[i,j - 1]==true)&&(V_sites[i - 1,j]==true)&&(V_sites[i + 1,j]==true));
-
-        if is_Interior==true
-          k = FindCoordinate(w_Int,i,j);
-          if k==-1
-            push!(w_Int,L_coord(i,j));
-          end
+        if length(w_Bound) == 0
+           break;  # WE're done!!!
         end
-      end
-    end
 
-    t2 = time_ns();
-    print( "time elapsed: " , (t2 - t1)/1.0e9, "\n" );
-
-    println("..... Step2. Creating transformations....");
-
-    t1 = time_ns();
-
-    Transforms_ = createTransforms(w_Int); #Transforms_ is a pair of 2 matrices [T_matrix, Delta_matrix] in this order
-    # T_matrix is the coeff  matrix of the mass transform for the interior walk
-    # Delta_matrix is the coeff matrix of the mass distribution to boundary for the interior walk
-
-
-    weights_ = zeros(Float64, length(w_Int),1 );
-    for i = 1:length(w_Int)
-      weights_[i]=Z_lat[w_Int[i].x, w_Int[i].y];
-    end
-
-    t2 = time_ns();
-    print( "time elapsed: " , (t2 - t1)/1.0e9, "\n" );
-
-
-    println("..... Step3. Computing distributed weigths with inversion operator....");
-    t1 = time_ns();
-    id_M = zeros(Float64, length(w_Int), length(w_Int) );
-    for ii = 1:length(w_Int)
-      id_M[ii,ii] = 1;
-    end
-
-    weights_=(Transforms_[2]*(inv( id_M  - Transforms_[1]   )) )*weights_;
-
-    t2 = time_ns();
-    print( "time elapsed: " , (t2 - t1)/1.0e9, "\n" );
-
-    println("..... Step4. Distributing the weigths....");
-
-    t1 = time_ns();
-
-    for i = 1:length(w_Int)
-      a = w_Int[i].x;
-      b = w_Int[i].y;
-
-      Z_lat[a+1,b] = Z_lat[a+1,b] + weights_[i];
-      Z_lat[a-1,b] = Z_lat[a-1,b] + weights_[i];
-      Z_lat[a,b+1] = Z_lat[a,b+1] + weights_[i];
-      Z_lat[a,b-1] = Z_lat[a,b-1] + weights_[i];
-
-      Odometer[a,b] = Odometer[a,b]+4*weights_[i];
-    end
-
-    for i=1:length(w_Int)
-      a=w_Int[i].x;
-      b=w_Int[i].y;
-      Z_lat[a,b]=0;
-    end
-
-    t2 = time_ns();
-    print( "time elapsed: " , (t2 - t1)/1.0e9,"\n" );
-
-    # it is left to re-populate the boundary
-
-    println("..... Step5. Populating the new boundary....");
-
-    t1 = time_ns();
-
-    for i=1:length(w_Int)
-      #checking neighbors of interior points
-
-     for k=1:4
-      a=w_Int[i].x +dx[k];
-      b=w_Int[i].y +dy[k];
-
-      is_Interior = ((V_sites[a,b + 1]==true)&&(V_sites[a,b - 1]==true)&&(V_sites[a - 1,b] == true)&&(V_sites[a + 1,b]==true));
-
-      if (is_Interior==false)&&(Z_lat[a,b]>Norm_mass)
-
-        j=FindCoordinate(w_Bound,a,b);
-
-        if j==-1
-          push!(w_Bound,L_coord(a,b));
-        end
-      end
-
-     end
-
-    end # for loop over interior
-
-
-    t2 = time_ns();
-    print( "time elapsed: " , (t2 - t1)/1.0e9, "\n" );
-
-    w_Int=L_coord[];
-
-    if length(w_Bound)==0
-      break;  # WE're done!!!
-    end
-
-  end #end of the main while
+    end #end of the main while
 
 
     Z_lat = output.printIntoFile(Z_lat,  0, string("BSand_Z_", T_mass) );
     Odometer = output.printIntoFile(Odometer, 1,string("BSand_OD_", T_mass)  );
 
+    output.saveAsGrayImage(Z_lat, string("BSand_Z_", T_mass), 20, 2);
 
     # for the total elapsed time, it's better to use the @time macros on the main call
 

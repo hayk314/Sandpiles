@@ -152,5 +152,35 @@ function Array_magnifier(A, cell_mag, border_mag)
 
 end
 
+function saveAsGrayImage(A, fileName, cell_mag, border_mag)
+    # given a 2d matrix A, we save it as a gray image after magnifying by the given factors
+    A1 = Array_magnifier(A, cell_mag, border_mag);
+    A1 = A1/maximum(maximum(A1));
+
+    save( string(fileName, ".png") , colorview(Gray, A1)) ;
+end
+
+function saveAsRGBImage(A, fileName, color_codes, cell_mag, border_mag)
+  # color_codes is a dictionary, where key is a value in A and value is an RGB triplet
+  # given a 2d array A, and color codes (mapping from values in A to RGB triples), save A
+  # into fileName as png image after applying the magnifying factors
+
+  #R = zeros(size(A));
+  #G = zeros(size(A));
+  #B = zeros(size(A));
+  A1 = Array_magnifier(A, cell_mag, border_mag);
+  color_mat = zeros(UInt8, (3, size(A1,1), size(A1,2)) );
+
+  for i = 1:size(A1,1)
+    for j = 1:size(A1,2)
+        color_mat[:, i,j]  = get(color_codes, A1[i,j] , [0,0,0] )
+    end
+  end
+
+  #A1 = Array_magnifier(A, cell_mag, border_mag)
+  save( string(fileName, ".png") , colorview(RGB, color_mat/255)) ;
+
+end
+
 
 end # end of the module
