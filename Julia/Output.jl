@@ -109,9 +109,14 @@ end
 
 
 
-function printIntoFile(A, extraLayer, strFileName)
+function printIntoFile(A, extraLayer, strFileName, TrimSmallValues = false)
   # exports a 2d matrix A into a csv file
   # @extraLayer is an integers adding layer of 0-s sorrounding the output matrix
+
+  # trimming off very small values; tiny values affect the performance of CSV export
+  if TrimSmallValues == true
+    A = map( x -> if ( abs( x - floor(x)  ) < 0.01   )  floor(x) else x end, A ) ;
+  end
 
   i1, i2, j1, j2  = TrimZeros( A );
   A = A[i1:i2, j1:j2];
@@ -152,10 +157,15 @@ function Array_magnifier(A, cell_mag, border_mag)
 
 end
 
-function saveAsGrayImage(A, fileName, cell_mag, border_mag)
+function saveAsGrayImage(A, fileName, cell_mag, border_mag, TrimSmallValues = false)
     # given a 2d matrix A, we save it as a gray image after magnifying by the given factors
     A1 = Array_magnifier(A, cell_mag, border_mag);
     A1 = A1/maximum(maximum(A1));
+
+    # trimming very small values from A1 to improve performance
+    if TrimSmallValues == true
+        A1 = map( x -> if ( x < 0.01 ) 0.0 else round(x, digits = 2) end, A1  ) ;
+    end
 
     save( string(fileName, ".png") , colorview(Gray, A1)) ;
 end

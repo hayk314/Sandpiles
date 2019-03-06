@@ -1,3 +1,6 @@
+# ==================================================
+# Author: Hayk Aleksanyan
+# ==================================================
 module Sand
 
 output = include("Output.jl") # supports output functionality (e.g. array to csv)
@@ -273,6 +276,7 @@ function moveSand(T_mass)
     Odometer = output.printIntoFile(Odometer, 1,string("BSand_OD_", T_mass)  );
 
     output.saveAsGrayImage(Z_lat, string("BSand_Z_", T_mass), 20, 2);
+    output.saveAsGrayImage(Odometer, string("BSand_OD_", T_mass), 20, 2);
 
     # for the total elapsed time, it's better to use the @time macros on the main call
 
@@ -384,7 +388,7 @@ function moveSand_Standard(T_mass, max_iter_Count = 50000)
 
     while iter_ < max_iter_Count
 
-        iter_=iter_ + 1;
+        iter_ = iter_ + 1;
         if (iter_%1000 == 0)
             println("Iteration N:: ", iter_);
             println("The boundaries are:: ", (i2-i1+1),"x",(j2-j1+1), "\n");
@@ -400,7 +404,7 @@ function moveSand_Standard(T_mass, max_iter_Count = 50000)
 
       for tt=1:1500
           for i=1:length(w_Int)
-
+               # the toppling
                x, y = w_Int[i].x, w_Int[i].y;
                if Z_lat[x,y] == 0.0
                   continue
@@ -412,6 +416,8 @@ function moveSand_Standard(T_mass, max_iter_Count = 50000)
                Z_lat[x,y - 1] += dist_mass;
                Z_lat[x - 1,y] += dist_mass;
                Z_lat[x + 1,y] += dist_mass;
+
+               Odometer[x,y] += Z_lat[x,y];
 
                Z_lat[x,y] = 0 ;
           end
@@ -427,57 +433,55 @@ function moveSand_Standard(T_mass, max_iter_Count = 50000)
        end # interior cycles
 
 
-    for i = 1:length(w_Int)
-        x , y = w_Int[i].x, w_Int[i].y;
+        for i = 1:length(w_Int)
+            x , y = w_Int[i].x, w_Int[i].y;
 
-        i1, i2, j1, j2 = min(i1,x-1), max(i2,x+1), min(j1,y-1), max(j2,y+1);
+            i1, i2, j1, j2 = min(i1,x-1), max(i2,x+1), min(j1,y-1), max(j2,y+1);
 
-        V_sites[x, y + 1] = true;
-        V_sites[x, y - 1] = true;
-        V_sites[x - 1, y] = true;
-        V_sites[x + 1, y] = true;
-    end
+            V_sites[x, y + 1] = true;
+            V_sites[x, y - 1] = true;
+            V_sites[x - 1, y] = true;
+            V_sites[x + 1, y] = true;
+        end
 
-    w_Int = L_coord[];
-    q = false;
+        w_Int = L_coord[];
+        q = false;
 
-    for i=i1:i2
-      for j=j1:j2
-          is_Interior = ((V_sites[i,j + 1]==true)&&(V_sites[i,j- 1]==true)&&(V_sites[i - 1,j] == true)&&(V_sites[i + 1,j]==true));
-          if (is_Interior)
-              push!(w_Int, L_coord(i,j));
-              if Z_lat[i,j] > 0
-                  q = true;
-              end
-          else
-              if Z_lat[i,j] > Norm_mass
-                push!(w_Int, L_coord(i,j));
-                q = true;
-              end
-          end
-      end
-    end
+        for i=i1:i2
+            for j=j1:j2
+                is_Interior = ((V_sites[i,j + 1]==true)&&(V_sites[i,j- 1]==true)&&(V_sites[i - 1,j] == true)&&(V_sites[i + 1,j]==true));
+                if (is_Interior)
+                    push!(w_Int, L_coord(i,j));
+                    if Z_lat[i,j] > 0
+                      q = true;
+                    end
+                else
+                    if Z_lat[i,j] > Norm_mass
+                        push!(w_Int, L_coord(i,j));
+                        q = true;
+                    end
+                end
+            end
+        end
 
+        if q == false
+          break;  # We are done
+        end
 
-    if q == false
-      break;  # WE're done!!!
-    end
-
-  end #end of the main while
-
+    end #end of the main while
 
 
-  Z_lat = output.printIntoFile(Z_lat,  0, string("BSand_Z_", T_mass) );
-  Odometer = output.printIntoFile(Odometer, 1,string("BSand_OD_", T_mass)  );
+  println("saving into CSV...")
+  Z_lat = output.printIntoFile(Z_lat,  0, string("BSand_Z_", T_mass), true );
+  Odometer = output.printIntoFile(Odometer, 1,string("BSand_OD_", T_mass) , true );
 
+  println("saving as Gray images...")
+  output.saveAsGrayImage(Z_lat, string("BSand_Z_", T_mass), 20, 0, true);
+  output.saveAsGrayImage(Odometer, string("BSand_OD_", T_mass), 20, 0, true);
 
   return Z_lat, Odometer; # these are trimmed in output module
 
 end # end of function moveSand_Standard
-
-
-
-
 
 
 end # end of the module
