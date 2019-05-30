@@ -5,6 +5,8 @@ As of this writing the repository contains simulation of the Abelian Sandpile mo
 
 ## Abelian Sandpile
 
+<a href = "https://en.wikipedia.org/wiki/Abelian_sandpile_model">Abelian Sandpile</a> was introduced in 1987 by <a href="#ref-BTW">Bak, Tang, and Wiesenfeld</a> as an example of a dynamical system exhibiting <a href = "https://en.wikipedia.org/wiki/Self-organized_criticality">self-organized criticality</a>.
+The model, which is a cellular automaton, works as according to the following simple rules. Start with `n` (indistinguishable) grains of  sands placed at the origin of the 2d integer lattice (coordinates of the 2-dimensional plane having both their coordinates integers). At any point of (discrete) time if a lattice site has at least 4 grains of sand, then give 1 grain to each of its 4 neighbours (this step is called `toppling`). Repeat this process one-by-one, until all sites of the lattice have at most 3 grains of sand. 
 
 Final configuration of the Abelian sandpile for 1 000 000 grains of sand at the origin of 2d integer lattice
 ![Abelian Sandpile with 1 million grains of sand](https://github.com/hayk314/Sandpiles/blob/master/C%2B%2B/AbelSand/Debug/Abel1000000.png)
