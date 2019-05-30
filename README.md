@@ -12,12 +12,10 @@ Final configuration of the Abelian sandpile for 1 000 000 grains of sand at the 
 
 ## References
 
-<li id="ref-AS">1. Hayk Aleksanyan, and Henrik Shahgholian <a href = "https://arxiv.org/abs/1607.01525">Discrete Balayage and Boundary Sandpile</a>, Journal d'Analyse Mathematique (<i>to appear</i>) </li> 
+<li id="ref-AS">1. Hayk Aleksanyan, and Henrik Shahgholian;  <a href = "https://arxiv.org/abs/1607.01525">Discrete Balayage and Boundary Sandpile</a>, Journal d'Analyse Mathematique (<i>to appear</i>) </li> 
 
+<li id="ref-BTW">2. Per Bak, Chao Tang, and Kurt Wiesenfeld; <a href = "https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.59.381">Self-organized criticality: An explanation of the 1/f noise</a>Phys. Rev. A (3) 38, 1988</li>
 
-<h5 id="ref-BTW">2. Per Bak, Chao Tang, and Kurt Wiesenfeld</h5>
-
-[Self-organized criticality: An explanation of the 1/f noise](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.59.381), Phys. Rev. A (3) 38, 1988
 
 <h5 id="ref-LPer">3. Lionel Levine, and Yuval Peres</h5>
 
