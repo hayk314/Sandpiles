@@ -12,7 +12,7 @@ Final configuration of the Abelian sandpile for 1 000 000 grains of sand at the 
 
 ## References
 
-<li id="ref-AS">1. Hayk Aleksanyan, and Henrik Shahgholian [Discrete Balayage and Boundary Sandpile](https://arxiv.org/abs/1607.01525), Journal d'Analyse Mathematique (to appear) </li> 
+<li id="ref-AS">1. Hayk Aleksanyan, and Henrik Shahgholian <a href = "https://arxiv.org/abs/1607.01525">Discrete Balayage and Boundary Sandpile</a>, Journal d'Analyse Mathematique (<i>to appear</i>) </li> 
 
 
 <h5 id="ref-BTW">2. Per Bak, Chao Tang, and Kurt Wiesenfeld</h5>
