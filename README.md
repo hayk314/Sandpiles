@@ -1,7 +1,7 @@
 # Sandpiles
 
 The aim of this repository is provide simulations of various **sandpile** models.
-As of this writing the repository contains simulation of the Abelian Sandpile model [2] (both in Julia and in C++ mainly for comparing the runtime speeds) and boundary sandpile model (in Julia) introduced in [1].
+As of this writing the repository contains simulation of the Abelian Sandpile model <a href="#ref-BTW">[2]</a> (both in Julia and in C++ mainly for comparing the runtime speeds) and boundary sandpile model (in Julia) introduced in <a href="#ref-AS">[1]</a>.
 
 <a href="#ref-AS">[1]</a>
 
