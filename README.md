@@ -13,7 +13,7 @@ final configuration of the Abelian sandpile for 1 000 000 grains of sand placed 
   <img src ="https://github.com/hayk314/Sandpiles/blob/master/C%2B%2B/AbelSand/Debug/Abel1000000.png" alt = "Abelian Sandpile">
 </p>
 <p align="center">
-The final configuration of Abelian Sandpile on 2d grid for 1 000 000 particles at the origin. The coloring scheme (number of sand grains - color) is as follows: ``0-black, 1-magenta, 2-red, 3-blue.``
+The final configuration of Abelian Sandpile on 2d grid for 1 000 000 particles at the origin. The coloring scheme (number of sand grains - color) is as follows: <b>0-black, 1-magenta, 2-red, 3-blue.</b>
 </p>
 
 ## References
