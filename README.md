@@ -9,7 +9,9 @@ As of this writing the repository contains simulation of the **Abelian Sandpile*
 The model, which is a cellular automaton, works according to the following simple rules. Start with `n` (indistinguishable) grains of  sands placed at the origin of the 2d integer lattice (i.e. the set of points of the 2-dimensional plane with integer coordinates). At any point of (discrete) time if a lattice site has at least 4 grains of sand, then give 1 grain to each of its 4 neighbours (this step is called `toppling`). Repeat this process one-by-one, until all sites of the lattice have at most 3 grains of sand. It can be proved that however large `n` might be, after finitely many toppling (the number depending on `n`) all lattice points will have at most 3 grains of sand. Moreover, it does not matter in which order the topplings are performed, the final configuration is always the same (hence the name **Abelian**). Unexpectedly, such a simple rule produces complex configurations. For example, the
 final configuration of the Abelian sandpile for 1 000 000 grains of sand placed at the origin of 2d integer lattice looks as follows
 
-![Abelian Sandpile with 1 million grains of sand](https://github.com/hayk314/Sandpiles/blob/master/C%2B%2B/AbelSand/Debug/Abel1000000.png)
+<p align="center">
+  <img src ="https://github.com/hayk314/Sandpiles/blob/master/C%2B%2B/AbelSand/Debug/Abel1000000.png">
+</p>
 
 where the coloring scheme (number of sand grains - color) is as follows: ``0-black, 1-magenta, 2-red, 3-blue.``
 
