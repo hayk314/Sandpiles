@@ -10,11 +10,11 @@ The model, which is a cellular automaton, works according to the following simpl
 final configuration of the Abelian sandpile for 1 000 000 grains of sand placed at the origin of 2d integer lattice looks as follows
 
 <p align="center">
-  <img src ="https://github.com/hayk314/Sandpiles/blob/master/C%2B%2B/AbelSand/Debug/Abel1000000.png">
+  <img src ="https://github.com/hayk314/Sandpiles/blob/master/C%2B%2B/AbelSand/Debug/Abel1000000.png" alt = "Abelian Sandpile">
 </p>
-
-where the coloring scheme (number of sand grains - color) is as follows: ``0-black, 1-magenta, 2-red, 3-blue.``
-
+<p align="center">
+The final configuration of Abelian Sandpile on 2d grid for 1 000 000 particles at the origin. The coloring scheme (number of sand grains - color) is as follows: ``0-black, 1-magenta, 2-red, 3-blue.``
+</p>
 
 ## References
 
