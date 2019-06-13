@@ -1,15 +1,17 @@
 # Sandpiles
 
 The aim of this repository is provide simulations of various **sandpile** models.
-As of this writing the repository contains simulation of the Abelian Sandpile model introduced in <a href="#ref-BTW">[2]</a> (both in Julia and in C++ mainly for comparing the runtime speeds) and boundary sandpile model (in Julia) introduced in <a href="#ref-AS">[1]</a>.
+As of this writing the repository contains simulation of the **Abelian Sandpile** model introduced in <a href="#ref-BTW">[2]</a> (coded both in Julia and in C++ mainly for comparing the runtime speeds) and **boundary sandpile** model (coded in Julia) introduced in <a href="#ref-AS">[1]</a>.
 
 ## Abelian Sandpile
 
 <a href = "https://en.wikipedia.org/wiki/Abelian_sandpile_model">Abelian Sandpile</a> was introduced in 1987 by <a href="#ref-BTW">Bak, Tang, and Wiesenfeld</a> as an example of a dynamical system exhibiting <a href = "https://en.wikipedia.org/wiki/Self-organized_criticality">self-organized criticality</a>.
-The model, which is a cellular automaton, works as according to the following simple rules. Start with `n` (indistinguishable) grains of  sands placed at the origin of the 2d integer lattice (coordinates of the 2-dimensional plane having both their coordinates integers). At any point of (discrete) time if a lattice site has at least 4 grains of sand, then give 1 grain to each of its 4 neighbours (this step is called `toppling`). Repeat this process one-by-one, until all sites of the lattice have at most 3 grains of sand. 
+The model, which is a cellular automaton, works according to the following simple rules. Start with `n` (indistinguishable) grains of  sands placed at the origin of the 2d integer lattice (i.e. the set of points of the 2-dimensional plane with integer coordinates). At any point of (discrete) time if a lattice site has at least 4 grains of sand, then give 1 grain to each of its 4 neighbours (this step is called `toppling`). Repeat this process one-by-one, until all sites of the lattice have at most 3 grains of sand. It can be proved that however large `n` might be, after finitely many toppling (the number depending on `n`) all lattice points will have at most 3 grains of sand. Moreover, it does not matter in which order the topplings are performed, the final configuration is always the same (hence the name **Abelian**). Unexpectedly, such a simple rule produces complex configurations. For example, the
+final configuration of the Abelian sandpile for 1 000 000 grains of sand placed at the origin of 2d integer lattice looks as follows
 
-Final configuration of the Abelian sandpile for 1 000 000 grains of sand at the origin of 2d integer lattice
 ![Abelian Sandpile with 1 million grains of sand](https://github.com/hayk314/Sandpiles/blob/master/C%2B%2B/AbelSand/Debug/Abel1000000.png)
+
+where the coloring scheme (number of sand grains - color) is as follows: ``0-black, 1-magenta, 2-red, 3-blue.``
 
 
 ## References
