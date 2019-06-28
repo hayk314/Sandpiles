@@ -40,6 +40,29 @@ On the same notebook as above, the program runs in 25 seconds.
 
 
 As one can observe, the C++ version is faster than the Julia version, however not fast enough in general. While there are no heavy computations being performed, the process, however, does an excessive number of 2d array read-writes which eventually slow down the whole process. It would be very interesting to find out better approaches for stabilization than a straightforward simulation of the sandpile.
+
+## Boundary sandpile
+
+Boundary sandpile model was introduced by <a href="#ref-AS">Hayk Aleksanyan and Henrik Shahgholian</a> as an attempt to model a <em>qudrature surface</em> (a potential theoretic concept) by a particle dynamics. Contrary to the initial guess, however, the model turned out to produce a new and not yet fully understood phenomenon. 
+
+To define the boundary sandpile model, assume we have mass `n>0` at the origin of the integer lattice (here `n` does not need to be an integer, it is a continuous mass). Fix also a threshold value equal to `sqrt(n)`, a boundary capacity of the model (this specific choice of the threshold is determined from scaling considerations, see <a href="#ref-AS">the original paper</a> for the details, in particular, for dimension `d >= 2` the value of the threshold is taken to be `n^{1/d}`). For each epoch of discrete time, define also a set of `visited sites` of the model, which are the set of all points of the integer lattice which have been visited by the spread of the process by the given time. For instance, at time `0` the only visited site would be the origin. At each point of time a given vertex of the lattice carrying a positive mass can topple if either it is in the interior of the set of visited sites, or it carries mass more than the `boundary threshold`. Toppling will distribute all the mass of the vertex equally among its neighours and will leave no mass for the vertex itself. Except for trivial cases, it takes an infinite number of topplings to stabilize the process. Nevertheless it is proved in <a href="#ref-AS">[A-S]</a> that once each vertex topples an infinite number of times the sandpile will always stabilize in the limit and the limiting configuration is independent of the order of the topplings (so the process is Abelian in this sense).
+
+<p float ="center">
+On the left is the final configuration of Boundary Sandpile on 2d grid for mass 1 000 at the origin, and the right image is the final configuration for mass 10 000. The colored pixels represent the boundary of the sandpile, where the entire mass is concentrated.
+Lighter colors mean more mass.
+</p>
+
+<p float="center">
+ <span float = "left"> &nbsp; <img src="https://github.com/hayk314/Sandpiles/blob/master/Julia/BSand_Z_1000.png" width="300"  /> </span>
+  <span>  &nbsp; &nbsp;  &nbsp;&nbsp;</span>
+ <span> <img src="https://github.com/hayk314/Sandpiles/blob/master/Julia/BSand_Z_10000.png" width="500" />  </span>
+</p>
+
+
+
+
+
+
 ## References
 
 <li id="ref-AS">1. Hayk Aleksanyan, and Henrik Shahgholian  <a href = "https://arxiv.org/abs/1607.01525">Discrete Balayage and Boundary Sandpile</a>, Journal d'Analyse Mathematique (<i>to appear</i>) </li> 
