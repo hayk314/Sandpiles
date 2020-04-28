@@ -1,3 +1,6 @@
-.csv
-.ppm
-.png
+*.csv
+*.ppm
+*.png
+C++/AbelSand/.vs/*
+C++/AbelSand/AbelSand/x64/*
+C++/AbelSand/x64/*
