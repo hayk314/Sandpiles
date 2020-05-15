@@ -49,7 +49,7 @@ To define the boundary sandpile model, assume we have mass `n>0` at the origin o
 
 <p float ="center">
 On the left is the final configuration of Boundary Sandpile on 2d grid for mass 1 000 at the origin, and the right image is the final configuration for mass 10 000. The colored pixels represent the boundary of the sandpile, where the entire mass is concentrated.
-Lighter colors mean more mass.
+Lighter colors mean  more mass.
 </p>
 
 <p float="center">
