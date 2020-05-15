@@ -3,8 +3,8 @@ module AbelSand
 output = include("Output.jl") # supports output functionality (e.g. array to csv)
 
 
-const N_size = 700;    # the radius of the lattice Z^2, the actual size becomes (2*N+1)x(2*N+1)
-const dx = [1,0,-1,0]; # for a given (x,y) in Z^2, (x + dx, y + dy) for all (dx,dy) covers the neighborhood of (x,y)
+const N_size = 700;     # the radius of the lattice Z^2, the actual size becomes (2*N+1)x(2*N+1)
+const dx = [1,0,-1,0];  # for a given (x,y) in Z^2, (x + dx, y + dy) for all (dx,dy) covers the neighborhood of (x,y)
 const dy = [0,1,0,-1];
 
 struct L_coord
