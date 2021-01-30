@@ -2,10 +2,9 @@
 #include "output.h"
 #include "Abel.h"
 
-
 using namespace std;
-using namespace outputFunctions;
-using namespace Abel;
+using namespace output_functions;
+using namespace abel;
 
 
 int main()
@@ -14,14 +13,14 @@ int main()
 	cout << "Please write the number of grains on the origin" << endl;
 	cin >> n;
 
-	//double t = Abel::moveStandard(n);
-	double t = Abel::moveStandard_1Step(n);
+	//double t = abel::MoveStandard(n);
+	double t = abel::MoveStandard_1Step(n);
 
-	cout << "done in " << t << "seconds" << endl;
+	cout <<"Done in " << t << " seconds" << endl;
 
-	char _end_;
-	cout << endl << "Enter any character to quit";
-	cin >> _end_;
+	char _end;
+	cout << endl << "Enter any character to quit ";
+	cin >> _end;
 
 	return 1;
 }

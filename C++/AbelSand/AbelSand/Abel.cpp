@@ -7,45 +7,45 @@
 #include "output.h"
 
 using namespace std;
-using namespace Abel;
-using namespace outputFunctions;
+using namespace abel;
+using namespace output_functions;
 
-double Abel::moveStandard( unsigned int N)
+double abel::MoveStandard(unsigned int n)
 {
-		// sandpile stabilization with N particles at the origin in a standard way, 
+		// sandpile stabilization with n particles at the origin in a standard way, 
 	    // with preallocated stack of moving vertices
 
-		unsigned int** Z_lat = new unsigned int*[N_size];      // models the standard lattice Z^2
-		bool** V_sites = new bool*[N_size];                    // vertices of Z^2 which were visited during the process
-		bool** Move_ = new bool*[N_size];                      // vertices of Z^2 which are already in the walking stack
-		unsigned int** Odometer = new unsigned int*[N_size];   // total number of topplings of a given vertex of Z^2
+		unsigned int** z_lat = new unsigned int*[kLatticeSize];      // models the standard lattice Z^2
+		bool** v_sites = new bool*[kLatticeSize];                    // vertices of Z^2 which were visited during the process
+		bool** to_be_moved = new bool*[kLatticeSize];                // vertices of Z^2 which are already in the walking stack
+		unsigned int** odometer = new unsigned int*[kLatticeSize];   // total number of topplings of a given vertex of Z^2
 
 
-		for (int k = 0; k < N_size; k++)
-		{
-			Z_lat[k] = new unsigned int[N_size];
-			V_sites[k] = new bool[N_size];
-			Odometer[k] = new unsigned int[N_size];
-			Move_[k] = new bool[N_size];
+		for (int k = 0; k < kLatticeSize; ++k){
+			z_lat[k] = new unsigned int[kLatticeSize];
+			v_sites[k] = new bool[kLatticeSize];
+			odometer[k] = new unsigned int[kLatticeSize];
+			to_be_moved[k] = new bool[kLatticeSize];
 
-			for (int i = 0; i<N_size; i++)
-			{
-				Z_lat[k][i] = 0;  Move_[k][i] = false; V_sites[k][i] = false;
+			for (int i = 0; i < kLatticeSize; ++i){
+				z_lat[k][i] = 0;  
+				to_be_moved[k][i] = false; 
+				v_sites[k][i] = false;
 			}
 		}
 
-		L_coord* walking_ = new L_coord[N_size*N_size]; //pre-allocated stack of vertices which need to be toppled
+		LCoord* walking_sites = new LCoord[kLatticeSize*kLatticeSize];  //pre-allocated stack of vertices which need to be toppled
 		
-		V_sites[N_size2][N_size2] = true;
-		Move_[N_size2][N_size2] = true;
+		v_sites[kLatticeHalfSize][kLatticeHalfSize] = true;
+		to_be_moved[kLatticeHalfSize][kLatticeHalfSize] = true;
 
-		Z_lat[N_size2][N_size2] = N;
-		walking_[0].x = N_size2;
-		walking_[0].y = N_size2;
+		z_lat[kLatticeHalfSize][kLatticeHalfSize] = n;
+		walking_sites[0].x = kLatticeHalfSize;
+		walking_sites[0].y = kLatticeHalfSize;
 
 
 		unsigned int x = 0, y = 0;
-		int top_ = 0;
+		int top = 0;
 
 		unsigned int lx = 0, ly = 0;
 		unsigned int d = 0;
@@ -54,92 +54,92 @@ double Abel::moveStandard( unsigned int N)
 		t1 = clock();
 
 		unsigned int max_of_top = 0;
-		unsigned long N_of_Moves = 0;
+		unsigned long n_of_moves = 0;
 
 
-		while (top_ >= 0)
+		while (top >= 0)
 		{
-			N_of_Moves += 1;
+			n_of_moves += 1;
 
-			if (max_of_top<top_) { max_of_top = top_; }
+			if (max_of_top < top){
+				max_of_top = top; 
+			}
 
-			x = walking_[top_].x;      y = walking_[top_].y;
+			x = walking_sites[top].x;
+			y = walking_sites[top].y;
 			
-			top_--; Move_[x][y] = false;
+			top--; 
+			to_be_moved[x][y] = false;
 			
-			d = (Z_lat[x][y] >> 2);
-			Z_lat[x][y] = Z_lat[x][y] - (d << 2);
+			d = (z_lat[x][y] >> 2);
+			z_lat[x][y] = z_lat[x][y] - (d << 2);
 
-			for (int k = 0; k < 4; k++)
-			{
-				lx = x + dx[k];
-				ly = y + dy[k];
+			for (int k = 0; k < 4; ++k){
+				lx = x + kDx[k];
+				ly = y + kDy[k];
 
-				V_sites[lx][ly] = true;
-				Z_lat[lx][ly] += d;
+				v_sites[lx][ly] = true;
+				z_lat[lx][ly] += d;
 
-				if (Move_[lx][ly] == false && Z_lat[lx][ly] >= 4)
-				{
-					walking_[++top_].x = lx; 
-					walking_[top_].y = ly; 
-					Move_[lx][ly] = true;
+				if (to_be_moved[lx][ly] == false && z_lat[lx][ly] >= 4){
+					walking_sites[++top].x = lx; 
+					walking_sites[top].y = ly; 
+					to_be_moved[lx][ly] = true;
 				}
 			}	
-
 		}
 
 		t2 = clock();
 
-		outputFunctions::Box_coord B;
-		B = TrimmedArray(V_sites, N_size, N_size);
-		Array_toCSV(Z_lat, V_sites, B.i1, B.i2, B.j1, B.j2, ("Abel" + std::to_string(N) + ".csv").c_str());
-
+		output_functions::BoxCoord b;
+		b = TrimmedArray(v_sites, kLatticeSize, kLatticeSize);
+		ArrayToCSV(z_lat, v_sites, b.i1, b.i2, b.j1, b.j2, ("Abel" + std::to_string(n) + ".csv").c_str());
 
 		// clean-ups
-
-		for (int k = 0; k<N_size; k++)
-		{
-			delete[] Z_lat[k];
-			delete[] V_sites[k];
-			delete[] Odometer[k];
-			delete[] Move_[k];
+		for (int k = 0; k<kLatticeSize; ++k){
+			delete[] z_lat[k];
+			delete[] v_sites[k];
+			delete[] odometer[k];
+			delete[] to_be_moved[k];
 		}
 
-		delete[] Z_lat; delete[] V_sites; delete[] Odometer; delete[] Move_; delete[] walking_;
+		delete[] z_lat; 
+		delete[] v_sites; 
+		delete[] odometer; 
+		delete[] to_be_moved; 
+		delete[] walking_sites;
 
+		std::cout<<"Maximal number in the stack was "<<max_of_top<<endl;
+		std::cout<<"Number of moves in the main loop was "<<n_of_moves<<endl;
 
-		cout << "Maximal number in the stack was " << max_of_top << endl;
-		cout << "Number of moves in the main loop was " << N_of_Moves << endl;
-
-		return ((float)(t2)-float(t1))*0.001;
-	
+		return ((float)(t2)-float(t1)) * 0.001;	
 }
 
-double Abel::moveStandard_1Step(unsigned int N)
+double abel::MoveStandard_1Step(unsigned int n)
 {
+	unsigned int** z_lat = new unsigned int*[kLatticeSize];
+	bool** v_sites = new bool*[kLatticeSize];
+	bool** to_be_moved = new bool*[kLatticeSize]; 
+	unsigned int** odometer = new unsigned int*[kLatticeSize];
 
-	unsigned int** Z_lat = new unsigned int*[N_size];
-	bool** V_sites = new bool*[N_size];
-	bool** Move = new bool*[N_size]; 
-	unsigned int** Odometer = new unsigned int*[N_size];
 
+	for (int k = 0; k<kLatticeSize; ++k){
+		z_lat[k] = new unsigned int[kLatticeSize];
+		v_sites[k] = new bool[kLatticeSize];
+		odometer[k] = new unsigned int[kLatticeSize];
+		to_be_moved[k] = new bool[kLatticeSize];
 
-	for (int k = 0; k<N_size; k++)
-	{
-		Z_lat[k] = new unsigned int[N_size];
-		V_sites[k] = new bool[N_size];
-		Odometer[k] = new unsigned int[N_size];
-		Move[k] = new bool[N_size];
-
-		for (int i = 0; i < N_size; i++)
-		{
-			Z_lat[k][i] = 0;  V_sites[k][i] = false; Odometer[k][i] = 0; Move[k][i] = false;
+		for (int i = 0; i < kLatticeSize; ++i){
+		    z_lat[k][i] = 0;  
+			v_sites[k][i] = false; 
+			odometer[k][i] = 0; 
+			to_be_moved[k][i] = false;
 		}
 	}
 
-	L_coord* walking = new L_coord[N_size*N_size]; //pre-allocated stack
+	LCoord* walking = new LCoord[kLatticeSize * kLatticeSize];  // pre-allocated stack
 
-	V_sites[N_size2][N_size2] = true;
+	v_sites[kLatticeHalfSize][kLatticeHalfSize] = true;
 
 	int top = -1;
 	unsigned int x = 0, y = 0, lx = 0, ly = 0;
@@ -149,85 +149,76 @@ double Abel::moveStandard_1Step(unsigned int N)
 	t1 = clock();
 
 	unsigned int max_of_top = 0;
-	unsigned long N_of_Moves = 0;
+	unsigned long n_of_moves = 0;
 
-	for (unsigned int i = N ; i--; )
-	{
-		if (++Z_lat[N_size2][N_size2] >= 4)
-		{
-			walking[++top].x = N_size2; 
-			walking[top].y = N_size2;
+	for (unsigned int i = n ; i--;){
+		if (++z_lat[kLatticeHalfSize][kLatticeHalfSize] >= 4){
+			walking[++top].x = kLatticeHalfSize; 
+			walking[top].y = kLatticeHalfSize;
 		}
 
-		while (top >= 0)
-		{
-			N_of_Moves += 1;
+		while (top >= 0){
+			n_of_moves += 1;
 
-			if (max_of_top < top) { max_of_top = top; }
+			if (max_of_top < top){
+				max_of_top = top; 
+			}
 
 			x = walking[top].x;      
 			y = walking[top].y;
 
-			Z_lat[x][y] = Z_lat[x][y] - 4;
-			if (Z_lat[x][y] < 4)
-			{
+			z_lat[x][y] = z_lat[x][y] - 4;
+			if (z_lat[x][y] < 4){
 				top --; 
-				Move[x][y] = false;
+				to_be_moved[x][y] = false;
 			}
 
 
-			for (int k = 0; k < 4; k++)
-			{
-				lx = x + dx[k];
-				ly = y + dy[k];
+			for (int k = 0; k < 4; ++k){
+				lx = x + kDx[k];
+				ly = y + kDy[k];
 				
-				V_sites[lx][ly] = true;
-				Z_lat[lx][ly] ++;
+				v_sites[lx][ly] = true;
+				z_lat[lx][ly] ++;
 
-				if (Move[lx][ly] == false && Z_lat[lx][ly] >= 4)
-				{
+				if (to_be_moved[lx][ly] == false && z_lat[lx][ly] >= 4){
 					walking[++top].x = lx;
 					walking[top].y = ly;
-					Move[lx][ly] = true;
+					to_be_moved[lx][ly] = true;
 				}
 			}
 		}
-
 	}
-
-
-
+	
 
 	// now running the process until stabilisation
-
-
+	
 	t2 = clock();
 
-	cout << endl;
+	std::cout<<endl;
 
-	cout << "Maximal number in the stack was " << max_of_top << endl;
-	cout << "Number of moves in the main loop was " << N_of_Moves << endl;
+	std::cout<<"Maximal number in the stack was "<<max_of_top<<endl;
+	std::cout<<"Number of moves in the main loop was "<<n_of_moves<<endl;
 
-
-
-	Box_coord B = TrimmedArray(V_sites, N_size, N_size);
-	Array_toCSV (Z_lat, V_sites, B.i1, B.i2, B.j1, B.j2, ("Abel" +   std::to_string(N) + ".csv").c_str()  );
-	Array_toPPM(Z_lat, V_sites, B.i1, B.i2, B.j1, B.j2, ("Abel" + std::to_string(N) + ".ppm").c_str());
+	
+	BoxCoord b = TrimmedArray(v_sites, kLatticeSize, kLatticeSize);
+	ArrayToCSV(z_lat, v_sites, b.i1, b.i2, b.j1, b.j2, ("Abel" + std::to_string(n) + ".csv").c_str());
+	ArrayToPPM(z_lat, v_sites, b.i1, b.i2, b.j1, b.j2, ("Abel" + std::to_string(n) + ".ppm").c_str());
 
 	// clean-ups
-
-	for (int k = 0; k<N_size; k++)
-	{
-		delete[] Z_lat[k];
-		delete[] V_sites[k];
-		delete[] Odometer[k];
-		delete[] Move[k];
+	for (int k = 0; k<kLatticeSize; ++k){
+		delete[] z_lat[k];
+		delete[] v_sites[k];
+		delete[] odometer[k];
+		delete[] to_be_moved[k];
 	}
 
-	delete[] Z_lat; delete[] V_sites; delete[] Odometer; delete[] Move; delete[] walking;
-
-
-
+	delete[] z_lat; 
+	delete[] v_sites; 
+	delete[] odometer; 
+	delete[] to_be_moved; 
+	delete[] walking;
+	
 
 	return ((double)(t2)-double(t1))*0.001;
 }

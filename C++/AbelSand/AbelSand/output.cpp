@@ -4,27 +4,28 @@
 
 #include "output.h"
 
-using namespace outputFunctions;
+using namespace output_functions;
 using namespace std;
 
 //template<typename T_array>
-Box_coord outputFunctions::TrimmedArray(bool ** A, int sz1, int sz2)
+BoxCoord output_functions::TrimmedArray(bool ** a, int sz1, int sz2)
 {
-    // trim any zero row/columns from the borders of A and return the resulting rectangle
+    // trim any zero row/columns from the borders of a and return the resulting rectangle
 
-	outputFunctions::Box_coord X;
-	X.i1 = -1; X.i2 = -1; X.j1 = -1; X.j2 = -1;
+	output_functions::BoxCoord x;
+	x.i1 = -1; 
+	x.i2 = -1; 
+	x.j1 = -1; 
+	x.j2 = -1;
 
 	bool q = false;
 
-	for (int i = 0; i < sz1; i++)
-	{
+	for (int i = 0; i < sz1; ++i){
 		q = false;
-		for (int j = 0; j < sz2; j++)
-			if (A[i][j] != 0)
-			{
+		for (int j = 0; j < sz2; ++j)
+			if (a[i][j] != 0){
 				q = true;
-				X.i1 = i;
+				x.i1 = i;
 				break;
 			}
 		if (q == true)
@@ -32,141 +33,125 @@ Box_coord outputFunctions::TrimmedArray(bool ** A, int sz1, int sz2)
 	}
 
 	// i2
-	for (int i = sz1 - 1; i >= 0; i--)
-	{
+	for (int i = sz1 - 1; i >= 0; --i){
 		q = false;
-		for (int j = 0; j < sz2; j++)
-			if (A[i][j] != 0)
-			{
+		for (int j = 0; j < sz2; ++j)
+			if (a[i][j] != 0){
 				q = true;
-				X.i2 = i;
+				x.i2 = i;
 				break;
 			}
 		if (q == true)
 			break;
 	}
-
-
+	
 	// j1
-	for (int j = 0; j < sz2; j++)
-	{
+	for (int j = 0; j < sz2; ++j){
 		q = false;
-		for (int i = 0; i < sz1; i++)
-			if (A[i][j] != 0)
-			{
+		for (int i = 0; i < sz1; ++i)
+			if (a[i][j] != 0){
 				q = true;
-				X.j1 = j;
+				x.j1 = j;
 				break;
 			}
 		if (q == true)
 			break;
 	}
-
-
+	
 	// j2
-	for (int j = sz2 - 1; j >= 0; j--)
-	{
+	for (int j = sz2 - 1; j >= 0; --j){
 		q = false;
-		for (int i = 0; i < sz1; i++)
-			if (A[i][j] != 0)
-			{
+		for (int i = 0; i < sz1; ++i)
+			if (a[i][j] != 0){
 				q = true;
-				X.j2 = j;
+				x.j2 = j;
 				break;
 			}
 		if (q == true)
 			break;
 	}
+	
 
-
-
-	return X;
+	return x;
 
 }
 
 //template<typename T_array>
-void outputFunctions::Array_toCSV(unsigned int ** Z_lat, bool ** Visited, int i1, int i2, int j1, int j2, const char* fileName)
+void output_functions::ArrayToCSV(unsigned int ** z_lat, bool ** visited, int i1, int i2, int j1, int j2, const char* filename)
 {
 	// given the box [i1, i2]x[j1,j2] in the array T_array, saves the box into a csv file
 
-	ofstream csv_File;
-	string rowData = "";
+	ofstream csv_file;
+	string row_data = "";
 
-	csv_File.open(fileName);
-
-
-	for (int i = i1; i <= i2; i++)
-	{
-		rowData = "";
-		for (int j = j1; j <= j2 - 1; j++)
-			if (Visited[i][j] == true)
-				rowData += std::to_string(static_cast <unsigned long long>(Z_lat[i][j])) + ",";
+	csv_file.open(filename);
+	
+	for (int i = i1; i <= i2; ++i){
+		row_data = "";
+		for (int j = j1; j <= j2 - 1; ++j)
+			if (visited[i][j] == true)
+				row_data += std::to_string(static_cast <unsigned long long>(z_lat[i][j])) + ",";
 			else
-				rowData += "-1,";
+				row_data += "-1,";
 
-		if (Visited[i][j2] == true)
-			rowData += std::to_string(static_cast <unsigned long long>(Z_lat[i][j2])) + "\n";
+		if (visited[i][j2] == true)
+			row_data += std::to_string(static_cast <unsigned long long>(z_lat[i][j2])) + "\n";
 		else
-			rowData +=  "-1\n";
+			row_data +=  "-1\n";
 
-		csv_File << rowData;
+		csv_file << row_data;
 	}
 
-	csv_File.close();
+	csv_file.close();
 }
 
 template<typename T_array>
-void outputFunctions::Array_toCSV(T_array ** A, int sz1, int sz2, const char* fileName)
+void output_functions::ArrayToCSV(T_array ** a, int sz1, int sz2, const char* filename)
 {
-	// outputs the array A into csv file with the given fileName
+	// outputs the array a into csv file with the given filename
 
-	ofstream csv_File;
-	string rowData = "";
+	ofstream csv_file;
+	string row_data = "";
 
-	csv_File.open(_Fname);
+	csv_file.open(filename);
 
-	for (int i = 0; i < sz1; i++)
-	{
-		rowData = "";
-		for (int j = 0; j < sz2 - 1; j++)
-			rowData = rowData + std::to_string(static_cast <unsigned long long>(A[i][j])) + ",";
+	for (int i = 0; i < sz1; ++i){
+		row_data = "";
+		for (int j = 0; j < sz2 - 1; ++j)
+			row_data = row_data + std::to_string(static_cast <unsigned long long>(a[i][j])) + ",";
 
-		rowData = rowData + std::to_string(static_cast <unsigned long long>(A[i][sz2 - 1])) + "\n";
-
-
-		csv_File << rowData;
+		row_data = row_data + std::to_string(static_cast <unsigned long long>(a[i][sz2 - 1])) + "\n";
+		
+		csv_file << row_data;
 	}
 
-	csv_File.close();
+	csv_file.close();
 }
 
-void outputFunctions::Array_toPPM(unsigned int ** Z_lat, bool ** Visited, int i1, int i2, int j1, int j2, const char * fileName)
+void output_functions::ArrayToPPM(unsigned int ** z_lat, bool ** visited, int i1, int i2, int j1, int j2, const char * filename)
 {
 	// output the subarray [i1, i2]x[j1,j2] into a ppm (raw image) file 
 
-	ofstream ppm_File;
-	string rowData = "";
+	ofstream ppm_file;
+	string row_data = "";
 
-	ppm_File.open(fileName);
+	ppm_file.open(filename);
 
-	ppm_File << (string("P3\n") + std::to_string(i2 - i1 + 1) + " " + std::to_string(j2 - j1 + 1) + "\n255\n" );
+	ppm_file << (string("P3\n") + std::to_string(i2 - i1 + 1) + " " + std::to_string(j2 - j1 + 1) + "\n255\n" );
 
-	for (int i = i1; i <= i2; i++)
-	{
-		rowData = "";
-		for (int j = j1; j <= j2; j++)
-		{
-			if (Z_lat[i][j] == 1)
-				rowData += "255 128 255 ";
-			else if (Z_lat[i][j] == 2)
-				rowData += "255 0 0 ";
-			else if (Z_lat[i][j] == 3)	
-				rowData += "0 128 255 ";
+	for (int i = i1; i <= i2; ++i){
+		row_data = "";
+		for (int j = j1; j <= j2; ++j){
+			if (z_lat[i][j] == 1)
+				row_data += "255 128 255 ";
+			else if (z_lat[i][j] == 2)
+				row_data += "255 0 0 ";
+			else if (z_lat[i][j] == 3)	
+				row_data += "0 128 255 ";
 			else
-				rowData += "0 0 0 ";				
+				row_data += "0 0 0 ";				
 		}
-		ppm_File << (rowData + "\n");
+		ppm_file << (row_data + "\n");
 	}
-	ppm_File.close();
-
+	ppm_file.close();
 }
